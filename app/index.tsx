@@ -21,10 +21,12 @@ export default function LoginScreen() {
   const validatePhoneNumber = () => {
     const newErrors: { phoneNumber?: string; name?: string } = {};
 
-    if (!phoneNumber) {
+    // Ensure phone number includes country code and is valid
+    const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+216${phoneNumber}`;
+    if (!formattedPhoneNumber) {
       newErrors.phoneNumber = 'Phone number is required';
-    } else if (phoneNumber.length < 8) {
-      newErrors.phoneNumber = 'Phone number must be at least 8 digits';
+    } else if (!/^\+\d{10,15}$/.test(formattedPhoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be 10-15 digits with country code (e.g., +21612345678)';
     }
 
     if (isSignup && !name) {
@@ -40,7 +42,7 @@ export default function LoginScreen() {
 
     if (!code) {
       newErrors.code = 'Verification code is required';
-    } else if (code.length < 6) {
+    } else if (code.length !== 6) {
       newErrors.code = 'Verification code must be 6 digits';
     }
 
@@ -51,14 +53,18 @@ export default function LoginScreen() {
   const handleInitiateAuth = async () => {
     if (!validatePhoneNumber()) return;
 
+    // Format phone number with country code
+    const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+216${phoneNumber}`;
+    console.log('Attempting auth with phone:', formattedPhoneNumber);
+
     const success = isSignup
-      ? await initiatePhoneNumberSignup(phoneNumber, name)
-      : await initiatePhoneNumberLogin(phoneNumber);
+      ? await initiatePhoneNumberSignup(formattedPhoneNumber, name)
+      : await initiatePhoneNumberLogin(formattedPhoneNumber);
 
     if (success) {
       setIsCodeSent(true);
     } else {
-      Alert.alert('Error', 'Failed to send verification code. Please try again.');
+      Alert.alert('Error', 'Failed to send verification code. Please check your phone number and try again.');
     }
   };
 
@@ -70,7 +76,7 @@ export default function LoginScreen() {
       : await verifyLoginCode(code);
 
     if (success) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)'); // Navigate to the default screen in the (tabs) group
     } else {
       Alert.alert('Error', 'Invalid verification code');
     }
@@ -120,11 +126,11 @@ export default function LoginScreen() {
                   label="Phone Number"
                   value={phoneNumber}
                   onChangeText={setPhoneNumber}
-                  placeholder="98765432"
+                  placeholder="+21612345678"
                   keyboardType="phone-pad"
                   error={errors.phoneNumber}
                 />
-                <div id="recaptcha-container"></div>
+                {Platform.OS === 'web' && <View id="recaptcha-container" style={{ height: 0 }} />}
                 <Button
                   title={isSignup ? 'Send Signup Code' : 'Send Login Code'}
                   onPress={handleInitiateAuth}
@@ -169,7 +175,7 @@ export default function LoginScreen() {
 
             <View style={styles.demoInfo}>
               <Text style={[styles.demoText, { color: theme.colors.textSecondary }]}>
-                Demo: {isSignup ? 'Enter any name and ' : ''}Use any phone number (8+ digits)
+                Demo: {isSignup ? 'Enter any name and ' : ''}Use phone number with country code (e.g., +21612345678)
                 {isCodeSent ? ' and any 6-digit code' : ''} for testing
               </Text>
             </View>
