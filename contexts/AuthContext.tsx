@@ -26,6 +26,7 @@ interface AuthContextValue {
   verifyLoginCode: (code: string) => Promise<boolean>;
   initiatePhoneNumberSignup: (phoneNumber: string, name: string) => Promise<boolean>;
   verifySignupCode: (code: string) => Promise<boolean>;
+  mockLogin: (phoneNumber: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -44,6 +45,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (phoneNumber: string, password: string, name: string): Promise<boolean> => {
     console.warn("The 'signup' function is not used with phone authentication. Use 'initiatePhoneNumberSignup' and 'verifySignupCode'.");
     return false;
+  };
+
+  const mockLogin = async (phoneNumber: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      // Normalize phone number (remove non-digits except leading +)
+      const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+216${phoneNumber.replace(/\D/g, '')}`;
+      // Use phone number as a pseudo-ID for testing (hashed or sanitized to avoid invalid characters)
+      const userId = formattedPhoneNumber.replace(/[^0-9a-zA-Z]/g, '');
+      
+      const userDocRef = Platform.OS === 'web'
+        ? webDoc(db as Firestore, 'users', userId)
+        : rnDoc(db as FirebaseFirestoreTypes.Module, 'users', userId) as unknown as DocumentReference<DocumentData, DocumentData>;
+      
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const data = userDocSnap.data();
+        setUser({ id: userId, ...(data || {}) } as User);
+        console.log('Mock login successful: User retrieved from Firestore', { id: userId, ...data });
+      } else {
+        // Create a new user document for testing
+        const newUser: User = {
+          id: userId,
+          phoneNumber: formattedPhoneNumber,
+          name: 'Test User',
+          dataBalance: 0,
+          callCredit: 0,
+          nextInvoiceDate: '',
+          nextInvoiceAmount: 0,
+        };
+        await setDoc(userDocRef, newUser);
+        setUser(newUser);
+        console.log('Mock login successful: New user created in Firestore', newUser);
+      }
+      
+      setIsLoading(false);
+      return true;
+    } catch (error: any) {
+      console.error("Mock login error:", error.message, error.code);
+      setIsLoading(false);
+      return false;
+    }
   };
 
   const initiatePhoneNumberLogin = async (phoneNumber: string): Promise<boolean> => {
@@ -290,6 +334,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         verifyLoginCode,
         initiatePhoneNumberSignup,
         verifySignupCode,
+        mockLogin,
       }}
     >
       {children}

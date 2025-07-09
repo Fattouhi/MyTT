@@ -10,7 +10,7 @@ import { Card } from '@/components/Card';
 
 export default function LoginScreen() {
   const { theme } = useTheme();
-  const { initiatePhoneNumberLogin, verifyLoginCode, initiatePhoneNumberSignup, verifySignupCode, isLoading } = useAuth();
+  const { initiatePhoneNumberLogin, verifyLoginCode, initiatePhoneNumberSignup, verifySignupCode, mockLogin, isLoading } = useAuth();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -57,14 +57,23 @@ export default function LoginScreen() {
     const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+216${phoneNumber}`;
     console.log('Attempting auth with phone:', formattedPhoneNumber);
 
-    const success = isSignup
-      ? await initiatePhoneNumberSignup(formattedPhoneNumber, name)
-      : await initiatePhoneNumberLogin(formattedPhoneNumber);
-
-    if (success) {
-      setIsCodeSent(true);
+    let success;
+    if (isSignup) {
+      success = await initiatePhoneNumberSignup(formattedPhoneNumber, name);
+      if (success) {
+        setIsCodeSent(true);
+      } else {
+        Alert.alert('Error', 'Failed to send verification code. Please check your phone number and try again.');
+      }
     } else {
-      Alert.alert('Error', 'Failed to send verification code. Please check your phone number and try again.');
+      // Use mockLogin for testing
+      success = await mockLogin(formattedPhoneNumber);
+      if (success) {
+        Alert.alert('Success', 'Mock login successful! Check console for Firestore data.');
+        router.replace('/(tabs)'); // Navigate to the default screen in the (tabs) group
+      } else {
+        Alert.alert('Error', 'Mock login failed. Check Firestore connection or console for errors.');
+      }
     }
   };
 
@@ -130,9 +139,9 @@ export default function LoginScreen() {
                   keyboardType="phone-pad"
                   error={errors.phoneNumber}
                 />
-                {Platform.OS === 'web' && <View id="recaptcha-container" style={{ height: 0 }} />}
+                {Platform.OS === 'web' && <div id="recaptcha-container" style={{ display: 'none' }} />}
                 <Button
-                  title={isSignup ? 'Send Signup Code' : 'Send Login Code'}
+                  title={isSignup ? 'Send Signup Code' : 'Test Login (No SMS)'}
                   onPress={handleInitiateAuth}
                   loading={isLoading}
                   fullWidth
@@ -176,7 +185,7 @@ export default function LoginScreen() {
             <View style={styles.demoInfo}>
               <Text style={[styles.demoText, { color: theme.colors.textSecondary }]}>
                 Demo: {isSignup ? 'Enter any name and ' : ''}Use phone number with country code (e.g., +21612345678)
-                {isCodeSent ? ' and any 6-digit code' : ''} for testing
+                {isCodeSent ? ' and any 6-digit code' : ' for testing (Sign In uses mock login, no SMS)'}
               </Text>
             </View>
           </Card>
