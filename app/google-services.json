@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "811293413660",
+    "project_id": "mytt-008",
+    "storage_bucket": "mytt-008.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:811293413660:android:99a0a2de2f25e3b9776ad9",
+        "android_client_info": {
+          "package_name": "com.mytt.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRTaqs1kzDW_t-NtmtEyiSagfZ3dfb9ck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
