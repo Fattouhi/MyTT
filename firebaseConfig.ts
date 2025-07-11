@@ -1,6 +1,6 @@
 // firebaseConfig.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential , signOut  } from 'firebase/auth';
 import { getFirestore, setDoc, doc } from 'firebase/firestore';
 
 

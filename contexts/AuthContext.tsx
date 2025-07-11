@@ -9,6 +9,7 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { router } from 'expo-router';
 
 interface User {
   id: string;
@@ -37,18 +38,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const formatEmail = (phone: string) => `${phone}@mytt.com`;
 
   const fetchUserData = async (uid: string): Promise<User | null> => {
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    if (userDoc.exists()) {
-      const data = userDoc.data();
-      return {
-        id: uid,
-        phoneNumber: data.phone,
-        name: data.fullName,
-        dataBalance: 2.5,
-        callCredit: 12.75,
-        nextInvoiceDate: '2025-02-15',
-        nextInvoiceAmount: 45.0,
-      };
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        return {
+          id: uid,
+          phoneNumber: data.phone,
+          name: data.fullName,
+          dataBalance: 2.5,
+          callCredit: 12.75,
+          nextInvoiceDate: '2025-02-15',
+          nextInvoiceAmount: 45.0,
+        };
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
     }
     return null;
   };
@@ -92,8 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await signOut(auth);
-    setUser(null);
+    try {
+      await signOut(auth);
+      setUser(null);
+      console.log('User signed out successfully.');
+      router.replace('/'); // <--- This makes sure you go back to login screen
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
 
   useEffect(() => {
@@ -103,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userData);
       } else {
         setUser(null);
+        router.replace('/'); // <--- This auto-redirects when user logs out
       }
       setIsLoading(false);
     });
