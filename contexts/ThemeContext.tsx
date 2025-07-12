@@ -14,6 +14,10 @@ export interface Theme {
     error: string;
     success: string;
     warning: string;
+    // Added missing color properties
+    onSuccess: string;
+    onError: string;
+    onWarning: string;
   };
   spacing: {
     xs: number;
@@ -44,6 +48,10 @@ const lightTheme: Theme = {
     error: '#EF4444',
     success: '#10B981',
     warning: '#F59E0B',
+    // Added missing color properties
+    onSuccess: '#FFFFFF',
+    onError: '#FFFFFF',
+    onWarning: '#FFFFFF',
   },
   spacing: {
     xs: 4,
@@ -74,6 +82,10 @@ const darkTheme: Theme = {
     error: '#F87171',
     success: '#34D399',
     warning: '#FBBF24',
+    // Added missing color properties
+    onSuccess: '#FFFFFF',
+    onError: '#FFFFFF',
+    onWarning: '#000000',
   },
   spacing: {
     xs: 4,

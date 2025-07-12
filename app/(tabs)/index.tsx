@@ -369,12 +369,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingTop: 24, // Added extra top padding
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32, // Increased bottom margin
+    marginTop: 16, // Added top margin for extra space
   },
   greetingContainer: {
     flex: 1,
