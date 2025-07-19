@@ -1,5 +1,11 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, CreditCard, MessageCircle, Settings } from 'lucide-react-native';
+import {
+  Chrome as Home,
+  CreditCard,
+  MessageCircle,
+  Settings,
+  FileText,
+} from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TabLayout() {
@@ -21,9 +27,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
-          ),
+          tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -41,6 +45,15 @@ export default function TabLayout() {
           title: 'Ask AI',
           tabBarIcon: ({ size, color }) => (
             <MessageCircle size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="facture"
+        options={{
+          title: 'Facture',
+          tabBarIcon: ({ size, color }) => (
+            <FileText size={size} color={color} />
           ),
         }}
       />
